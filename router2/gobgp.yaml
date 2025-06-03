@@ -1,7 +1,7 @@
 global:
   config:
     as: 65002
-    router-id: "172.28.0.2"
+    router-id: "172.28.2.254"
   apply-policy:
     config:
       import-policy-list:
@@ -11,17 +11,17 @@ global:
 
 neighbors:
   - config:
-      neighbor-address: "172.28.0.11"
+      neighbor-address: "172.28.1.254"
       peer-as: 65001
   - config:
-      neighbor-address: "172.28.0.3"
+      neighbor-address: "172.28.3.254"
       peer-as: 65003
 
 defined-sets:
   prefix-sets:
     - prefix-set-name: "local-net"
       prefix-list:
-        - ip-prefix: "192.168.2.0/24"
+        - ip-prefix: "192.168.1.0/24"
           masklength-range: "24..24"
 
 policy-definitions:

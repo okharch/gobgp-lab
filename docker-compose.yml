@@ -1,41 +1,62 @@
-version: "3"
 services:
   router1:
     image: osrg/gobgp
     container_name: router1
-    entrypoint: /go/bin/gobgpd
-    command: -f /etc/gobgp/gobgp.yaml --config-type yaml
+    entrypoint: ["/go/bin/gobgpd", "-f", "/etc/gobgp/gobgp.yaml"]
     volumes:
       - ./router1/gobgp.yaml:/etc/gobgp/gobgp.yaml
     networks:
       net1:
-        ipv4_address: 172.28.0.11
+        ipv4_address: 172.28.1.254
 
   router2:
     image: osrg/gobgp
     container_name: router2
-    entrypoint: /go/bin/gobgpd
-    command: -f /etc/gobgp/gobgp.yaml --config-type yaml
+    entrypoint: ["/go/bin/gobgpd", "-f", "/etc/gobgp/gobgp.yaml"]
     volumes:
       - ./router2/gobgp.yaml:/etc/gobgp/gobgp.yaml
     networks:
       net1:
-        ipv4_address: 172.28.0.2
+        ipv4_address: 172.28.2.254
 
   router3:
     image: osrg/gobgp
     container_name: router3
-    entrypoint: /go/bin/gobgpd
-    command: -f /etc/gobgp/gobgp.yaml --config-type yaml
+    entrypoint: ["/go/bin/gobgpd", "-f", "/etc/gobgp/gobgp.yaml"]
     volumes:
       - ./router3/gobgp.yaml:/etc/gobgp/gobgp.yaml
     networks:
       net1:
-        ipv4_address: 172.28.0.3
+        ipv4_address: 172.28.3.254
+
+  host1:
+      image: alpine
+      container_name: host1
+      command: sh -c "ip route | grep -q 'default via 172.28.1.254' || ip route add default via 172.28.1.254; sleep infinity"
+      networks:
+        net1:
+          ipv4_address: 172.28.1.1
+
+  host2:
+      image: alpine
+      container_name: host2
+      command: sh -c "ip route | grep -q 'default via 172.28.2.254' || ip route add default via 172.28.2.254; sleep infinity"
+      networks:
+        net1:
+          ipv4_address: 172.28.2.1
+
+  host3:
+      image: alpine
+      container_name: host3
+      command: sh -c "ip route | grep -q 'default via 172.28.3.254' || ip route add default via 172.28.3.254; sleep infinity"
+      networks:
+        net1:
+          ipv4_address: 172.28.3.1
 
 networks:
   net1:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.28.0.0/24
+        - subnet: 172.28.0.0/16
+
