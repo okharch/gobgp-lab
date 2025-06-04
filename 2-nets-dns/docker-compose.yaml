@@ -1,7 +1,7 @@
 x-common-defaults: &common
   image: alpine
   command: ash -c 'trap "exit" TERM; while true; do usleep 500000; done'
-  stop_grace_period: 10s
+  stop_grace_period: 1s
   privileged: true
   cap_add:
     - NET_ADMIN
