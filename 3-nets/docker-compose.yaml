@@ -2,10 +2,14 @@ x-common-defaults: &common
   image: alpine
   command: ash -c 'trap "exit" TERM; while true; do usleep 500000; done'
   stop_grace_period: 10s
+  privileged: true
+  cap_add:
+    - NET_ADMIN
 
 services:
   router1:
     <<: *common
+    command: ash -c 'echo 1 > /proc/sys/net/ipv4/ip_forward; ip route add 172.20.1.0/24 via 172.20.3.2; trap "exit" TERM; while true; do usleep 500000; done'
     container_name: router1
     networks:
       net-router1:
@@ -15,6 +19,7 @@ services:
 
   router2:
     <<: *common
+    command:  ash -c 'echo 1 > /proc/sys/net/ipv4/ip_forward; ip route add 172.20.0.0/24 via 172.20.3.101; trap "exit" TERM; while true; do usleep 500000; done'
     container_name: router2
     networks:
       net-router2:
@@ -22,18 +27,10 @@ services:
       net-core:
         ipv4_address: 172.20.3.2
 
-  router3:
-    <<: *common
-    container_name: router3
-    networks:
-      net-router3:
-        ipv4_address: 172.20.2.254
-      net-core:
-        ipv4_address: 172.20.3.3
-
   host1:
     <<: *common
     container_name: host1
+    command: ash -c 'sleep 1;ip route del default; ip route add default via 172.20.0.254; route; trap "exit" TERM; while true; do usleep 500000; done'
     networks:
       net-router1:
         ipv4_address: 172.20.0.100
@@ -41,16 +38,11 @@ services:
   host2:
     <<: *common
     container_name: host2
+    command: ash -c 'sleep 1;ip route del default; ip route add default via 172.20.1.254; route; trap "exit" TERM; while true; do usleep 500000; done'
     networks:
       net-router2:
         ipv4_address: 172.20.1.100
 
-  host3:
-    <<: *common
-    container_name: host3
-    networks:
-      net-router3:
-        ipv4_address: 172.20.2.100
 
 networks:
   net-router1:
@@ -64,12 +56,6 @@ networks:
     ipam:
       config:
         - subnet: 172.20.1.0/24
-
-  net-router3:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.2.0/24
 
   net-core:
     driver: bridge
