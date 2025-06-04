@@ -83,6 +83,17 @@ services:
           - host2
     dns:
       - 172.20.1.253 # Updated to new DNS server IP
+  host3:
+    <<: *common
+    container_name: host3
+    command: ash -c 'route; trap "exit" TERM; while true; do usleep 500000; done'
+    networks:
+      net-router2:
+        ipv4_address: 172.20.1.103
+        aliases:
+          - host3
+    dns:
+      - 172.20.1.253 # Updated to new DNS server IP
 
 
 networks:
