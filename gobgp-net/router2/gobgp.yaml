@@ -1,0 +1,15 @@
+global:
+  config:
+    as: 65002
+    router-id: "172.20.1.254"
+
+neighbors:
+  - config:
+      neighbor-address: "172.20.3.4" # router1's IP on net-core
+      peer-as: 65001
+  - config:
+      neighbor-address: "172.20.3.3" # router3's IP on net-core
+      peer-as: 65003
+
+networks:
+  - prefix: 172.20.1.0/24

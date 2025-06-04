@@ -1,0 +1,62 @@
+# docker-compose.yaml
+version: '3.8'
+
+networks:
+  net-core:
+    ipam:
+      config:
+        - subnet: 172.20.3.0/24
+  net-router1:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+  net-router2:
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
+  net-router3:
+    ipam:
+      config:
+        - subnet: 172.20.2.0/24
+
+services:
+  router1:
+    image: ubuntu:latest
+    container_name: gobgp-lab-router1-1
+    privileged: true
+    entrypoint: /bin/bash -c "apt-get update && apt-get install -y iproute2 traceroute curl && curl -L https://github.com/osrg/gobgp/releases/download/v3.21.0/gobgpd-linux-amd64 -o /usr/local/bin/gobgpd && chmod +x /usr/local/bin/gobgpd && mkdir -p /etc/gobgp && cp /tmp/gobgp.yaml /etc/gobgp/gobgp.yaml && /usr/local/bin/gobgpd -f /etc/gobgp/gobgp.yaml --config-type yaml && tail -f /dev/null" # <-- UPDATED ENTRYPOINT
+    volumes:
+      - ./router1/gobgp.yaml:/tmp/gobgp.yaml
+    networks:
+      net-router1:
+        ipv4_address: 172.20.0.254
+      net-core:
+        ipv4_address: 172.20.3.4
+
+  router2:
+    image: ubuntu:latest
+    container_name: gobgp-lab-router2-1
+    privileged: true
+    entrypoint: /bin/bash -c "apt-get update && apt-get install -y iproute2 traceroute curl && curl -L https://github.com/osrg/gobgp/releases/download/v3.21.0/gobgpd-linux-amd64 -o /usr/local/bin/gobgpd && chmod +x /usr/local/bin/gobgpd && mkdir -p /etc/gobgp && cp /tmp/gobgp.yaml /etc/gobgp/gobgp.yaml && /usr/local/bin/gobgpd -f /etc/gobgp/gobgp.yaml --config-type yaml && tail -f /dev/null" # <-- UPDATED ENTRYPOINT
+    volumes:
+      - ./router2/gobgp.yaml:/tmp/gobgp.yaml
+    networks:
+      net-router2:
+        ipv4_address: 172.20.1.254
+      net-core:
+        ipv4_address: 172.20.3.2
+
+  router3:
+    image: ubuntu:latest
+    container_name: gobgp-lab-router3-1
+    privileged: true
+    entrypoint: /bin/bash -c "apt-get update && apt-get install -y iproute2 traceroute curl && curl -L https://github.com/osrg/gobgp/releases/download/v3.21.0/gobgpd-linux-amd64 -o /usr/local/bin/gobgpd && chmod +x /usr/local/bin/gobgpd && mkdir -p /etc/gobgp && cp /tmp/gobgp.yaml /etc/gobgp/gobgp.yaml && /usr/local/bin/gobgpd -f /etc/gobgp/gobgp.yaml --config-type yaml && tail -f /dev/null" # <-- UPDATED ENTRYPOINT
+    volumes:
+      - ./router3/gobgp.yaml:/tmp/gobgp.yaml
+    networks:
+      net-router3:
+        ipv4_address: 172.20.2.254
+      net-core:
+        ipv4_address: 172.20.3.3
+
+  # ... (rest of your docker-compose.yaml, including test-postgres if still needed)
