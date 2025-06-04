@@ -7,6 +7,28 @@ x-common-defaults: &common
     - NET_ADMIN
 
 services:
+  dns_server:
+    <<: *common
+    container_name: dns_server
+    command: >
+      ash -c '
+        apk add --no-cache dnsmasq;
+        echo "address=/host1/172.20.0.100" > /etc/dnsmasq.d/hosts.conf;
+        echo "address=/host2/172.20.1.100" >> /etc/dnsmasq.d/hosts.conf;
+        echo "address=/router1/172.20.0.254" >> /etc/dnsmasq.d/hosts.conf;
+        echo "address=/router2/172.20.1.254" >> /etc/dnsmasq.d/hosts.conf;
+        echo "address=/router1-core/172.20.3.101" >> /etc/dnsmasq.d/hosts.conf;
+        echo "address=/router2-core/172.20.3.2" >> /etc/dnsmasq.d/hosts.conf;
+        dnsmasq -k;
+      '
+    networks:
+      net-router1:
+        ipv4_address: 172.20.0.253 # Changed from .1 to .253
+      net-router2:
+        ipv4_address: 172.20.1.253 # Changed from .1 to .253
+      net-core:
+        ipv4_address: 172.20.3.253 # Changed from .1 to .253
+
   router1:
     <<: *common
     command: ash -c 'echo 1 > /proc/sys/net/ipv4/ip_forward; ip route add 172.20.1.0/24 via 172.20.3.2; trap "exit" TERM; while true; do usleep 500000; done'
@@ -14,8 +36,14 @@ services:
     networks:
       net-router1:
         ipv4_address: 172.20.0.254
+        aliases:
+          - router1
       net-core:
         ipv4_address: 172.20.3.101
+        aliases:
+          - router1-core
+    dns:
+      - 172.20.0.253 # Updated to new DNS server IP
 
   router2:
     <<: *common
@@ -24,8 +52,14 @@ services:
     networks:
       net-router2:
         ipv4_address: 172.20.1.254
+        aliases:
+          - router2
       net-core:
         ipv4_address: 172.20.3.2
+        aliases:
+          - router2-core
+    dns:
+      - 172.20.1.253 # Updated to new DNS server IP
 
   host1:
     <<: *common
@@ -34,6 +68,10 @@ services:
     networks:
       net-router1:
         ipv4_address: 172.20.0.100
+        aliases:
+          - host1
+    dns:
+      - 172.20.0.253 # Updated to new DNS server IP
 
   host2:
     <<: *common
@@ -42,6 +80,10 @@ services:
     networks:
       net-router2:
         ipv4_address: 172.20.1.100
+        aliases:
+          - host2
+    dns:
+      - 172.20.1.253 # Updated to new DNS server IP
 
 
 networks:
