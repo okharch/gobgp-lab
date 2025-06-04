@@ -1,6 +1,5 @@
 x-common-defaults: &common
   image: alpine
-  command: ash -c 'trap "exit" TERM; while true; do usleep 500000; done'
   stop_grace_period: 1s
   privileged: true
   cap_add:
@@ -23,11 +22,11 @@ services:
       '
     networks:
       net-router1:
-        ipv4_address: 172.20.0.253 # Changed from .1 to .253
+        ipv4_address: 172.20.0.253
       net-router2:
-        ipv4_address: 172.20.1.253 # Changed from .1 to .253
+        ipv4_address: 172.20.1.253
       net-core:
-        ipv4_address: 172.20.3.253 # Changed from .1 to .253
+        ipv4_address: 172.20.3.253
 
   router1:
     <<: *common
