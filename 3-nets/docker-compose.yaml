@@ -1,0 +1,78 @@
+x-common-defaults: &common
+  image: alpine
+  command: ash -c 'trap "exit" TERM; while true; do usleep 500000; done'
+  stop_grace_period: 10s
+
+services:
+  router1:
+    <<: *common
+    container_name: router1
+    networks:
+      net-router1:
+        ipv4_address: 172.20.0.254
+      net-core:
+        ipv4_address: 172.20.3.101
+
+  router2:
+    <<: *common
+    container_name: router2
+    networks:
+      net-router2:
+        ipv4_address: 172.20.1.254
+      net-core:
+        ipv4_address: 172.20.3.2
+
+  router3:
+    <<: *common
+    container_name: router3
+    networks:
+      net-router3:
+        ipv4_address: 172.20.2.254
+      net-core:
+        ipv4_address: 172.20.3.3
+
+  host1:
+    <<: *common
+    container_name: host1
+    networks:
+      net-router1:
+        ipv4_address: 172.20.0.100
+
+  host2:
+    <<: *common
+    container_name: host2
+    networks:
+      net-router2:
+        ipv4_address: 172.20.1.100
+
+  host3:
+    <<: *common
+    container_name: host3
+    networks:
+      net-router3:
+        ipv4_address: 172.20.2.100
+
+networks:
+  net-router1:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+  net-router2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
+
+  net-router3:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.2.0/24
+
+  net-core:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.3.0/24
