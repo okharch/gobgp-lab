@@ -1,6 +1,5 @@
 x-common-defaults: &common
   image: alpine
-  command: ash -c 'trap "exit" TERM; while true; do usleep 500000; done'
   stop_grace_period: 1s
   cap_add:
     - NET_ADMIN
@@ -8,6 +7,8 @@ x-common-defaults: &common
 services:
   router:
     <<: *common
+    privileged: true
+    command: ash -c 'echo 1 > /proc/sys/net/ipv4/ip_forward && trap "exit" TERM; while true; do usleep 500000; done'
     container_name: router
     networks:
       net-router1:
@@ -25,6 +26,7 @@ services:
     networks:
       net-router1:
         ipv4_address: 172.20.0.100
+    command: ash -c 'ip route del default && ip route add default via 172.20.0.254 && trap "exit" TERM; while true; do usleep 500000; done'
 
   host2:
     <<: *common
@@ -32,6 +34,7 @@ services:
     networks:
       net-router2:
         ipv4_address: 172.20.1.100
+    command: ash -c 'ip route del default && ip route add default via 172.20.1.254 && trap "exit" TERM; while true; do usleep 500000; done'
 
   host3:
     <<: *common
@@ -39,6 +42,7 @@ services:
     networks:
       net-router3:
         ipv4_address: 172.20.2.100
+    command: ash -c 'ip route del default && ip route add default via 172.20.2.254 && trap "exit" TERM; while true; do usleep 500000; done'
 
 networks:
   net-router1:
